@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--MyBatis配置文件-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.livorth.blog.dao.mapper.TagMapper">
+
+    <!-- List<Tag> findTagsByArticleId(Long articleId);-->
+    <!--根据博客id查找其标签-->
+    <select id="findTagsByArticleId" parameterType="long" resultType="cn.livorth.blog.entity.pojo.Tag">
+        select id,avatar,tag_name as tagName from  blog_tag
+        where id in
+        (select tag_id from blog_article_tag where article_id=#{articleId})
+    </select>
+
+    <!-- List<Long> findHotsTagIds(int limit);-->
+    <!-- 查找热门标签-->
+<!--    在blog_article_tag表中按照tagId出现的次数进行排序，仅取出前limit个-->
+    <select id="findHotsTagIds"  parameterType="int" resultType="java.lang.Long">
+        SELECT  tag_id FROM `blog_article_tag` group by tag_id order by count(*) desc limit #{limit}
+    </select>
+
+    <!-- List<Tag> findTagsByTagIds(List<Long> tagIds);-->
+    <!-- 根据标签id找id，也就是要找对应的博客-->
+    <select id="findTagsByTagIds" parameterType="list" resultType="cn.livorth.blog.entity.pojo.Tag">
+        select id,tag_name as tagName from blog_tag
+        where id in
+        <foreach collection="tagIds" item="tagId" separator="," open="(" close=")">
+            #{tagId}
+        </foreach>
+    </select>
+</mapper>
